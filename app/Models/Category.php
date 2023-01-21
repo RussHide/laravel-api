@@ -17,7 +17,7 @@ class Category extends Model
 
     //Relaciones permitidas
     protected $allowIncluded = ['posts', 'posts.user'];
-
+    protected $allowFilter = ['id', 'name', 'slug'];
 
     public function posts()
     {
@@ -25,7 +25,7 @@ class Category extends Model
     }
 
     /* Query scope para que el usuario busque por relaciones https://localhost:6000/api/categories/?include=post esto ultimo de inglude */
-    public function scopeIncluded(Builder $query)//La variable query me regresa la query que ese esta usando en el controlador, en este caso es findOrFail
+    public function scopeIncluded(Builder $query) //La variable query me regresa la query que ese esta usando en el controlador, en este caso es findOrFail
     {
         if (empty($this->allowIncluded) || empty(request('included'))) return; //Verifica que si este la variable included con el request
         $relations = explode(',', request('included')); //Aqui se reciben los parametros que se mandand ?include=posts.user y se separan por comas con explode
@@ -36,5 +36,20 @@ class Category extends Model
             }
         }
         $query->with($relations);
+    }
+
+    public function scopeFilter(Builder $query) //La variable query me regresa la query que ese esta usando en el controlador, en este caso es findOrFail
+    {
+
+        if (empty($this->allowFilter) || empty(request('filter'))) return; //Verifica que si este la variable included con el request
+        $filters = request('filter');
+        $allowFilter = collect($this->allowFilter);
+
+        foreach ($filters as $nameFilter => $value) {
+            if ($allowFilter->contains($nameFilter)) {
+                $query->where($nameFilter, 'LIKE', '%'.$value.'%');
+            }
+        }
+
     }
 }
