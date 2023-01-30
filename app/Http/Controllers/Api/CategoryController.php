@@ -5,13 +5,17 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use App\Http\Resources\CategoryResource;
 
 class CategoryController extends Controller
 {
     public function index()
     {
-        $categories = Category::included()->filter()->get();
-        return $categories;
+        $categories = Category::included()->filter()->sort()->getOrPaginate();
+          //Mandar llamar la forma en la que se mostraran los datos al recuperarlos DE VARIOS REGISTROS
+        //return new CategoryResource($category);
+        //O tambien puede ser
+        return CategoryResource::collection($categories);
     }
 
 
@@ -22,7 +26,8 @@ class CategoryController extends Controller
             'slug' => 'required|max:255|unique:categories',
         ]);
         $category = Category::create($request->all());
-        return $category;
+        return CategoryResource::make($category);
+
     }
 
 
@@ -44,8 +49,10 @@ class CategoryController extends Controller
         $category = Category::included()->findOrFail($id);
 
 
-
-        return $category;
+        //Mandar llamar la forma en la que se mostraran los datos al recuperarlos DE UN SOLO REGISTRO
+        //return new CategoryResource($category);
+        //O tambien puede ser 
+        return CategoryResource::make($category);
     }
 
 
@@ -53,15 +60,18 @@ class CategoryController extends Controller
     {
         $request->validate([
             'name' => 'required|max:255',
-            'slug' => 'required|max:255|unique:categories,slug,' . $category->id,
+            'slug' => 'required|max:255|unique:categories,slug,' . $category->id, //no considera el id de este registro para sobreescribirlo
         ]);
         $category->update($request->all());
-        return $category;
+        return CategoryResource::make($category);
+
     }
 
 
     public function destroy(Category $category)
     {
-        if ($category->delete()) return true;
+        $category->delete();
+        return CategoryResource::make($category);
+
     }
 }
