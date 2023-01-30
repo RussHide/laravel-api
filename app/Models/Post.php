@@ -11,6 +11,10 @@ class Post extends Model
     use ApiTrait;
     protected $fillable = ['name', 'slug', 'extract', 'body', 'status', 'category_id', 'user_id'];
 
+    protected $allowIncluded = ['user', 'user.posts', 'tag'];
+    protected $allowFilter = ['id', 'name', 'slug'];
+    protected $allowedSort = ['id', 'name'];
+
     const BORRADOR = 1;
     const PUBLICADO = 0;
 
