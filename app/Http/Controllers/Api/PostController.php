@@ -17,6 +17,7 @@ class PostController extends Controller
     }
     public function index()
     {
+   
         $posts = Post::included()->filter()->sort()->getOrPaginate();
         return PostResource::collection($posts);
     }
@@ -50,7 +51,7 @@ class PostController extends Controller
     {
         $request->validate([
             'name' => 'required|max:255',
-            'slug' => 'required|max:255|unique:posts,slug'.$post->id,
+            'slug' => 'required|max:255|unique:posts,slug' . $post->id,
             'extract' => 'required',
             'body' => 'required',
             'category_id' => 'required|exists:categories,id',
